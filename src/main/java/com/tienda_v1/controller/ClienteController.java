@@ -9,42 +9,43 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
+@RequestMapping("/cliente")
 public class ClienteController {
     
     @Autowired
-    
     private ClienteService clienteService;
     
-    @GetMapping("/")
+    @GetMapping("/listado")
     public String inicio(Model model){
-      var clientes=clienteService.getCliente();  
-          
-        model.addAttribute("clientes", clientes);
-        return "index";
+   var clientes=clienteService.getCliente();
+   model.addAttribute("clientes",clientes);
+        return "/cliente/listado";
        
     }
-    @GetMapping("/cliente/eliminar/{idCliente}")
+   
+    @GetMapping("/eliminar/{idCliente}")
     public String eliminaCliente(Cliente cliente){
         clienteService.deleteCliente(cliente);
-        return "redirect:/";
+        return "redirect:/cliente/listado";
     }
     
-    @GetMapping("/cliente/nuevo")
+    @GetMapping("/nuevo")
     public String nuevoCliente(Cliente cliente){
-        return"ModificaCliente";
+        return"/cliente/Modifica";
     }
-    @PostMapping("/cliente/guardar")
+    @PostMapping("/guardar")
     public String guardarCliente(Cliente cliente){
         clienteService.saveCliente(cliente);
-        return "redirect:/";
+        return "redirect:/cliente/listado";
     }
     
-     @GetMapping("/cliente/modificar/{idCliente}")
+     @GetMapping("/modificar/{idCliente}")
     public String modificaCliente(Cliente cliente, Model model){
         cliente= clienteService.getCliente(cliente);
         model.addAttribute("cliente",cliente);
-        return"ModificaCliente";
+        return"/cliente/Modifica";
     }
 }
