@@ -19,15 +19,15 @@ public class Categoria implements Serializable {
    private Long idCategoria;
    
    private String descripcion;
-   private boolean active;
+   private boolean activo;
     
    public Categoria(){
        
    }
 
-    public Categoria(String descripcion, boolean active) {
+    public Categoria(String descripcion, boolean activo) {
         this.descripcion = descripcion;
-        this.active = active;
+        this.activo = activo;
     }
 
    
