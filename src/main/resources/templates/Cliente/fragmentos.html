@@ -1,5 +1,8 @@
+
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
     <head th:replace="~{layout/plantilla :: head}">
         <title>TechShop</title>
         <meta charset="UTF-8"/>
@@ -8,7 +11,7 @@
 
         <!-- 1 Sección para crear el boton de agregar... llamará a una ventana modal-->
         <section th:fragment="botonesAgregar" class="py-4 mb-4 bg-light">
-            <div class="container">
+            <div class="container"  sec:authorize="hasRole('ROLE_ADMIN')">
                 <div class="row">
                     <div class="col-md-3">   
                         <button 
@@ -16,7 +19,7 @@
                             class="btn btn-primary btn-block" 
                             data-bs-toggle="modal" 
                             data-bs-target="#agregarCliente">
-                            <i class="fas fa-user-plus"></i> [[#{cliente.agregar}]]
+                            <i class="fas fa-plus"></i> [[#{cliente.agregar}]]
                         </button>
                     </div>
                 </div>
@@ -30,15 +33,6 @@
                  tabindex="-1" 
                  aria-labelledby="exampleModalLabel" 
                  aria-hidden="true">
-                <!--<!-- 
-                modal-lg monitores anchos 
-                modal-ms para monitores normales
-                modal-sm para tables
-                modal-xs celulares
-                
-                -->
-                
-                
                 <div class="modal-dialog modal-md">
                     <div class="modal-content">
                         <div class="modal-header bg-info text-white">
@@ -53,8 +47,7 @@
                             <div class="modal-body">
                                 <div class="mb-3">
                                     <label for="nombre">[[#{cliente.nombre}]]</label>
-                                    <input type="text" class="form-control" 
-                                           name="nombre" required="true">
+                                    <input type="text" class="form-control" name="nombre" required="true">
                                 </div>
                                 <div class="mb-3">
                                     <label for="apellidos">[[#{cliente.apellidos}]]</label>
@@ -70,12 +63,10 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="limite">[[#{cliente.limite}]]</label>
-                                    <input type="tel" class="form-control" name="credito.limite">
+                                    <input type="number" class="form-control" name="credito.limite">
                                 </div>
-                                
                             </div>
-                            
-                            <div class="modal-footer">
+                            <div class="modal-footer"  sec:authorize="hasRole('ROLE_ADMIN')">
                                 <button class="btn btn-primary" type="submit">[[#{accion.guardar}]]</button>
                             </div>
                         </form>
@@ -106,8 +97,8 @@
                                             <td>[[${contador.count}]]</td>
                                             <td>[[${cliente.nombre}]]</td>
                                             <td>[[${cliente.apellidos}]]</td>
-                                             <td>[[${cliente.credito.limite}]]</td>
-                                            <td><a th:href="@{/cliente/eliminar/}+${cliente.idCliente}"
+                                            <td class="text-end">[[${#numbers.setFormatDecimal(cliente.credito.limite,3,2)}]]</td>
+                                            <td  sec:authorize="hasRole('ROLE_ADMIN')"><a th:href="@{/cliente/eliminar/}+${cliente.idCliente}"
                                                    class="btn btn-danger">
                                                     <i class="fas fa-trash"></i> [[#{accion.eliminar}]]</a>
                                                 <a th:href="@{/cliente/modificar/}+${cliente.idCliente}"
@@ -126,6 +117,12 @@
                             <div class="card-body">
                                 <h3>[[#{cliente.total}]]</h3>
                                 <h4 class="fs-2"><i class="fas fa-users"></i> [[${totalClientes}]]</h4>
+                            </div>
+                        </div>
+                        <div class="card text-center bg-primary text-white mb-3">
+                            <div class="card-body">
+                                <h3>[[#{cliente.total.limite}]]</h3>
+                                <h4 class="fs-2"><i class="fas fa-money-bill-wave"></i> [[${totalLimite}]]</h4>
                             </div>
                         </div>
                     </div>
@@ -149,8 +146,8 @@
                                 <div class="row">
                                     <div class="col">
                                         <div class="card">
-                                            <div class="card-header bg-info">
-                                                <h4>[[#{cliente.actualizar}]]</h4>
+                                            <div class="card-header">
+                                                <h4>[[#{accion.actualizar}]]</h4>
                                             </div>
                                             <div class="card-body">
                                                 <div class="mb-3">
@@ -172,7 +169,7 @@
                                                            required="true">
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="telefono">[[#{cliente.telefonos}]]</label>
+                                                    <label for="telefono">[[#{cliente.telefono}]]</label>
                                                     <input type="tel" class="form-control" 
                                                            name="telefono" th:field="*{telefono}">
                                                 </div>
@@ -200,19 +197,19 @@
                             <i class="fas fa-arrow-left"></i> [[#{accion.regresar}]]
                         </a>
                     </div>
-                    <div class="col-md-4 d-grid">                                
+                    <div class="col-md-4 d-grid" sec:authorize="hasRole('ROLE_ADMIN')">                                
                         <a th:href="@{/cliente/eliminar/}+${cliente.idCliente}"
                            class="btn btn-danger">
                             <i class="fas fa-trash"></i> [[#{accion.eliminar}]]
                         </a>
                     </div>
-                    <div class="col-md-4 d-grid">
+                    <div class="col-md-4 d-grid" sec:authorize="hasRole('ROLE_ADMIN')">
                         <button type="submit" class="btn btn-success">
-                            <i class="fas fa-check"></i> [[#{accion.gurdar}]]
+                            <i class="fas fa-check"></i> [[#{accion.guardar}]]
                         </button>
                     </div>
                 </div>
             </div>
-        </section>
+        </section>        
     </body>
 </html>

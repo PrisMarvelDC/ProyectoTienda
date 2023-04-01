@@ -121,7 +121,8 @@
                                             <td>[[${articulo.descripcion}]]</td>
                                             <td>[[${articulo.detalle}]]</td>
                                             <td>[[${articulo.precio}]]</td>
-                                            <td>[[${articulo.imagen}]]</td>
+                                           <!-- <td>[[${articulo.imagen}]]</td>-->
+                                            <td> <img th:src="${articulo.imagen}" width="200px"/> </td>
                                             <td>[[${articulo.activo}]]</td>
                                             <td><a th:href="@{/articulo/eliminar/}+${articulo.idArticulo}"
                                                    class="btn btn-danger">
