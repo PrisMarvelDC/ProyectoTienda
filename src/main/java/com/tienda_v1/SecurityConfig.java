@@ -1,19 +1,6 @@
 
 package com.tienda_v1;
-/*
-import org.springframework.context.annotation.Bean;1
-import org.springframework.context.annotation.Configuration;1
-import org.springframework.beans.factory.annotation.Autowired;1
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;1
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;1
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;1
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;1
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;1
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.web.SecurityFilterChain;1
-*/
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
