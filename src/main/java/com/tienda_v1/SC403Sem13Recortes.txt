@@ -1,0 +1,1441 @@
+==========
+Recorte 001 Método securityFilterChain, en SecurityConfig
+===========
+
+ @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+            throws Exception {
+        http
+                .authorizeHttpRequests((request) -> request
+                .requestMatchers("/",
+                        "/index",
+                        "/errores/**",
+                        "/carrito/**",
+                          "/reportes/**",
+                        "/webjars/**").permitAll()
+                .requestMatchers(
+                        "/articulo/nuevo",
+                        "/articulo/guardar",
+                        "/articulo/modificar/**",
+                        "/articulo/eliminar/**",
+                        "/categoria/nuevo",
+                        "/categoria/guardar",
+                        "/categoria/modificar/**",
+                        "/categoria/eliminar/**",
+                        "/cliente/nuevo",
+                        "/cliente/guardar",
+                        "/cliente/modificar/**",
+                        "/cliente/eliminar/**",
+                         "/reportes/**"
+                ).hasRole("ADMIN")
+                .requestMatchers(
+                        "/articulo/listado",
+                        "/categoria/listado",
+                        "/cliente/listado"
+                ).hasAnyRole("ADMIN", "VENDEDOR")
+                .requestMatchers("/facturar/carrito")
+                .hasRole("USER")
+                )
+                .formLogin((form) -> form
+                .loginPage("/login").permitAll())
+                .logout((logout) -> logout.permitAll())
+                .exceptionHandling()
+                .accessDeniedPage("/errores/403");
+        return http.build();
+    }
+
+
+===========
+Recorte 002 login.html en templates
+===========
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://wwww.thymeleaf.org">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>TechShop</title>
+        <meta charset="UTF-8"/>
+    </head>
+    <body>
+        <header th:replace="~{layout/plantilla :: header}"/>
+        <div class="container my-5">
+            <div class="row align-items-center"> 
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-success">
+                            <h2>[[#{login.login}]]</h2>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" th:action="@{/login}">
+                                <div class="form-group row my-3">
+                                    <label class="col-md-5 my-auto" for="username">
+                                        <i class="fas fa-user-lock"></i>
+                                        [[#{login.username}]]:</label>
+                                    <div class="col-md-7 my-auto">
+                                        <input class="form-control" 
+                                               type="text" name="username" 
+                                               id="username"/></div></div>
+                                <div class="form-group row my-3">
+                                    <label class="col-md-5 my-auto" for="password">
+                                        <i class="fas fa-key"></i>
+                                        [[#{login.password}]]</label>
+                                    <div class="col-md-7 my-auto">
+                                        <input class="form-control" 
+                                               type="password" name="password" 
+                                               id="password"/></div></div>
+                                <div class="card-footer col text-center">
+                                    <button class="btn btn-success" type="submit">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                        [[#{login.login}]]</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>        
+        </div>
+        <footer th:replace="~{layout/plantilla :: footer}"/>     
+    </body>
+</html>
+
+
+===========
+Recorte 003 403.html en templates\errores
+===========
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://wwww.thymeleaf.org">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>TechShop</title>
+        <meta charset="UTF-8"/>
+    </head>
+    <body>
+        <header th:replace="~{layout/plantilla :: header}"/>
+        <div class="container my-5">
+            <div class="row align-items-center"> 
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-danger text-white">
+                            <h2>[[#{e403.titulo}]]</h2>
+                        </div>
+                        <div class="card-body">                            
+                            <p class="card-text">[[#{e403.texto}]]</p>
+                            <div class="card-footer col text-center">
+                                <a class="btn btn-danger" th:href="@{/}">
+                                    <i class="fas fa-arrow-left"></i> [[#{accion.regresar}]]</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>        
+        </div>
+        <footer th:replace="~{layout/plantilla :: footer}"/>     
+    </body>
+</html>
+
+===========
+Recorte 004 MvcConfig.java en el paquete principal 
+===========
+package com.tienda_v1
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class MvcConfig 
+        implements WebMvcConfigurer {
+    
+    @Override
+    public void addViewControllers
+        (ViewControllerRegistry registry) {
+            registry
+                    .addViewController("/")
+                    .setViewName("index");
+            registry
+                    .addViewController("/index")
+                    .setViewName("index");
+            
+            registry
+                    .addViewController("/login")
+                    .setViewName("login");
+            registry
+                    .addViewController("/errores/403")
+                    .setViewName("/errores/403");
+        }
+    
+}
+
+
+
+*************************
+Ejecución demostrativa
+*************************
+
+===========
+Recorte 005 Dependencia 
+===========
+
+ <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+        </dependency>
+         <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
+        </dependency>
+
+
+===========
+Recorte 006 plantilla.html incorporación de sec autorize en páginas html
+===========
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+    <head th:fragment="head">
+        <title>TechShop</title>
+        <meta charset="UTF-8"/>
+        <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet"/>
+        <link th:href="@{/webjars/font-awesome/css/all.css}" rel="stylesheet"/>
+        <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+        <script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
+        <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+    </head>
+    <body>
+        <header th:fragment="header" class="header">
+            <nav class="navbar navbar-expand-sm navbar-dark bg-dark p-0">
+                <div class="container">
+                    <a th:href="@{/}" class="navbar-brand">[[#{aplicacion.titulo}]]</a>
+                    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarCollapse">
+                        <ul class="navbar-nav" sec:authorize="hasRole('ROLE_ADMIN') OR hasRole('ROLE_VENDEDOR')">
+                            <li class="nav-item px-2">
+                                <a class="nav-menu-link nav-link" th:href="@{/cliente/listado}">[[#{plantilla.clientes}]]</a>
+                            </li>
+                            <li class="nav-item px-2">
+                                <a class="nav-menu-link nav-link" th:href="@{/categoria/listado}">[[#{plantilla.categorias}]]</a>
+                            </li>
+                            <li class="nav-item px-2">
+                                <a class="nav-menu-link nav-link" th:href="@{/articulo/listado}">[[#{plantilla.articulos}]]</a>
+                            </li>
+                            <li class="nav-item px-2" sec:authorize="hasRole('ROLE_ADMIN')">
+                                <a class="nav-menu-link nav-link" th:href="@{/usuario/listado}">[[#{plantilla.admin}]]</a>
+                            </li>
+                            <li class="nav-item px-2" sec:authorize="hasRole('ROLE_ADMIN')">
+                                <a class="nav-menu-link nav-link" th:href="@{/reportes/principal}">Reportes</a>
+                            </li>
+                        </ul>   
+                    </div>
+                       <div class="col-md-3 text-white text-end">
+                        <ul class="navbar-nav">
+                            <a class="nav-link" th:href="@{/(lang=es)}">ES </a>
+                            <a class="nav-link" th:href="@{/(lang=en)}">EN</a>
+                        </ul>
+                    </div>   
+                    <div>
+                        <ul class="navbar-nav" sec:authorize="!isAuthenticated()">
+                            <li class="nav-item px-2">
+                                <a class="nav-menu-link nav-link" th:href="@{/login}">
+                                    <i class='fas fa-sign-in-alt'></i>
+                                </a>
+                            </li>                            
+                        </ul>
+                        <ul class="navbar-nav" sec:authorize="isAuthenticated()">
+                            <li class="nav-item text-white my-auto">
+                                <i class='fas fa-user'></i> <span sec:authentication='name'>Santi</span>
+                            </li>
+                            <li class="nav-item my-auto">
+                                <form method="post" th:action="@{/logout}">
+                                    <button class="btn btn-dark">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                    </button>
+                                </form>
+                            </li>                            
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <section id="main-header" class="py-2 bg-success text-white">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h1>
+                                <i class="fas fa-cog"></i>[[#{plantilla.suTienda}]]
+                            </h1>
+                        </div>
+
+
+                    </div>
+                </div>
+            </section>
+        </header>
+
+
+        <footer th:fragment="footer" class="bg-info text-white mt-5 p-2">
+            <div class="container">
+                <div class="col">
+                    <p class="lead text-center">
+                        &COPY [[#{plantilla.derechos}]]
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+
+    </body>
+</html>
+
+===========
+Recorte 007 fragmentos.html incorporación de sec autorize en páginas html (en cliente)
+===========
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>TechShop</title>
+    </head>
+    <body>
+
+       <!-- 1 Sección para crear el boton de agregar... llamará a una ventana modal-->
+        <section th:fragment="botonesAgregar" class="py-4 mb-4 bg-light">
+            <div class="container" sec:authorize="hasRole('ROLE_ADMIN')">
+                <div class="row">
+                    <div class="col-md-3">   
+                        <button 
+                            type="button" 
+                            class="btn btn-primary btn-block" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#agregarCliente">
+                            <i class="fas fa-plus"></i> [[#{cliente.agregar}]]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2 Fragmento para agregar cliente, es la ventana modal -->
+        <section th:fragment="agregarCliente">
+            <div id="agregarCliente" 
+                 class="modal fade" 
+                 tabindex="-1" 
+                 aria-labelledby="exampleModalLabel" 
+                 aria-hidden="true">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content">
+                        <div class="modal-header bg-info text-white">
+                            <h5 class="modal-title">[[#{cliente.agregar}]</h5>
+                            <button type="button" 
+                                    class="btn-close" 
+                                    data-bs-dismiss="modal" 
+                                    aria-label="Close"></button>
+                        </div> 
+                        <form th:action="@{/cliente/guardar}" th:object="${cliente}"
+                              method="POST" class="was-validated">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="nombre">[[#{cliente.nombre}]]</label>
+                                    <input type="text" class="form-control" name="nombre" required="true">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="apellidos">[[#{cliente.apellidos}]]</label>
+                                    <input type="text" class="form-control" name="apellidos" required="true">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email">[[#{cliente.correo}]]</label>
+                                    <input type="email" class="form-control" name="correo" required="true">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="telefono">[[#{cliente.telefono}]]</label>
+                                    <input type="tel" class="form-control" name="telefono">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="limite">[[#{cliente.limite}]]</label>
+                                    <input type="number" class="form-control" name="credito.limite">
+                                </div>
+                            </div>
+                            <div class="modal-footer" sec:authorize="hasRole('ROLE_ADMIN')">
+                                <button class="btn btn-primary" type="submit">Guardar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3 Sección principal para mostrar la informaccion de la entidad cliente -->
+        <section th:fragment="listadoClientes" id="clientes">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>[[#{cliente.listado}]]</h4></div>
+                            <div th:if="${clientes != null and !clientes.empty}">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr><th>#</th>
+                                            <th>[[#{cliente.nombre}]]</th>
+                                            <th>[[#{cliente.apellidos}]]</th>
+                                            <th>[[#{cliente.limite}]]</th>
+                                            <th></th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="cliente, contador : ${clientes}">
+                                            <td>[[${contador.count}]]</td>
+                                            <td>[[${cliente.nombre}]]</td>
+                                            <td>[[${cliente.apellidos}]]</td>
+                                            <td>[[${cliente.credito.limite}]]</td>
+                                            <td sec:authorize="hasRole('ROLE_ADMIN')"><a th:href="@{/cliente/eliminar/}+${cliente.idCliente}"
+                                                   class="btn btn-danger">
+                                                    <i class="fas fa-trash"></i> [[#{accion.eliminar}]]</a>
+                                                <a th:href="@{/cliente/modificar/}+${cliente.idCliente}"
+                                                   class="btn btn-success">
+                                                    <i class="fas fa-pencil"></i> [[#{accion.actualizar}]]</a></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-center p-2" th:if="${clientes == null or clientes.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center bg-success text-white mb-3">
+                            <div class="card-body">
+                                <h3>[[#{cliente.total}]]</h3>
+                                <h4 class="fs-2"><i class="fas fa-users"></i> [[${totalClientes}]]</h4>
+                            </div>
+                        </div>
+                        
+                        <div class="card text-center bg-primary text-white mb-3">
+                            <div class="card-body">
+                                <h3>[[#{cliente.total.limite}]]</h3>
+                                <h4 class="fs-2"><i class="fas fa-money-bill-wave"></i> [[${totalCredito}]]</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4 Fragmento que se utiliza en la página modifca.html -->
+        <section th:fragment="editarCliente">
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <form method="POST"
+                          th:action="@{/cliente/guardar}" th:object="${cliente}"
+                          class="was-validated">
+                        <input type="hidden" name="idCliente" th:field="*{idCliente}"/>
+                        <section th:replace="~{cliente/fragmentos :: botonesEditar}"/>
+                        <div id=details>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h4>[[#{accion.actualizar}]]</h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label for="nombre">[[#{cliente.nombre}]]</label>
+                                                    <input type="text" class="form-control" 
+                                                           name="nombre" th:field="*{nombre}"
+                                                           required="true">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="apellidos">[[#{cliente.apellidos}]]</label>
+                                                    <input type="text" class="form-control" 
+                                                           name="apellidos" th:field="*{apellidos}"
+                                                           required="true">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="email">[[#{cliente.correo}]]</label>
+                                                    <input type="email" class="form-control" 
+                                                           name="correo" th:field="*{correo}"
+                                                           required="true">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="telefono">[[#{cliente.telefono}]]</label>
+                                                    <input type="tel" class="form-control" 
+                                                           name="telefono" th:field="*{telefono}">
+                                                </div>
+                                                 <div class="mb-3">
+                                                    <label for="limite">[[#{cliente.limite}]]</label>
+                                                    <input type="number" class="form-control" 
+                                                           name="limite" th:field="*{credito.limite}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5 Fragmento que se utiliza en el fragmento anterior -->
+        <section th:fragment="botonesEditar">
+            <div class="container py-4 mb-4 bg-light">
+                <div class="row">
+                    <div class="col-md-4 d-grid">
+                        <a th:href="@{/cliente/listado}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> [[#{accion.regresar}]]
+                        </a>
+                    </div>
+                    <div class="col-md-4 d-grid" sec:authorize="hasRole('ROLE_ADMIN')">                                
+                        <a th:href="@{/cliente/eliminar/}+${cliente.idCliente}"
+                           class="btn btn-danger">
+                            <i class="fas fa-trash"></i> [[#{accion.eliminar}]]
+                        </a>
+                    </div>
+                    <div class="col-md-4 d-grid" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> [[#{accion.guardar}]]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </body>
+</html>
+
+
+**************
+Ejecución del sistema
+**************
+
+
+===========
+Recorte 008 Rol.java en domain
+===========
+package com.tienda_v1.domain;
+
+import jakarta.persistence.*;
+import java.io.Serializable;
+import lombok.Data;
+
+@Data
+@Entity
+@Table(name="rol")
+public class Rol implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="id_rol")
+    private Long idRol;
+    
+    private String nombre;
+}
+
+===========
+Recorte 009 Usuario.java en domain
+===========
+package com.tienda_v1.domain;
+
+import jakarta.persistence.*;
+import java.io.Serializable;
+import java.util.List;
+import lombok.Data;
+
+@Data
+@Entity
+@Table(name="usuario")
+public class Usuario implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="id_usuario")
+    private Long idUsuario;
+    
+    private String username;
+    
+    private String password;
+    
+    @OneToMany
+    @JoinColumn(name="id_usuario")
+    private List<Rol> roles;
+}
+
+===========
+Recorte 009.1 UsuarioDao.java
+===========
+
+package com.tienda_v1.dao;
+
+import com.tienda_v1.domain.Usuario;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UsuarioDao extends JpaRepository <Usuario,Long> {
+ 
+    Usuario findByUsername(String username);
+}
+
+
+===========
+Recorte 009.2 UsuarioService.java.java
+===========
+
+package com.tienda_v1.service;
+import com.tienda_v1.dao.UsuarioDao;
+import com.tienda_v1.domain.Rol;
+import com.tienda_v1.domain.Usuario;
+import java.util.ArrayList;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service("userDetailsService")
+public class UsuarioService implements UserDetailsService{
+    @Autowired
+    private UsuarioDao usuarioDao;
+    
+    @Override
+    @Transactional(readOnly=true)
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        //Busca el usuario por el username en la tabla
+        Usuario usuario = usuarioDao.findByUsername(username);
+        
+        //Si no existe el usuario lanza una excepción
+        if(usuario == null){
+            throw new UsernameNotFoundException(username);
+        }
+        
+        //Si está acá es porque existe el usuario... sacamos los roles que tiene
+        var roles = new ArrayList<GrantedAuthority>();
+        
+        for(Rol rol: usuario.getRoles()){   //Se sacan los roles
+            roles.add(new SimpleGrantedAuthority(rol.getNombre()));
+        }
+        //Se devuelve User (clase de userDetails)
+        return new User(usuario.getUsername(), usuario.getPassword(), roles);
+    }    
+}
+
+
+
+===========
+Recorte 010 Ajustes en SecurityConfig.java (Se mantiente el método securityFilterChain)
+===========
+
+ /*  @Bean
+    public UserDetailsService users() {
+        UserDetails admin = User.builder()
+                .username("juan")
+                .password("{noop}123")
+                .roles("USER","VENDEDOR", "ADMIN")
+                .build();
+        UserDetails sales = User.builder()
+                .username("rebeca")
+                .password("{noop}456")
+                .roles("VENDEDOR","USER")
+                .build();
+        UserDetails user = User.builder()
+                .username("pedro")
+                .password("{noop}789")
+                .roles("USER")
+                .build();
+        
+        return new InMemoryUserDetailsManager(user,sales, admin);
+    } */
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Autowired
+    public void configurerGlobal(AuthenticationManagerBuilder build) throws Exception {
+        build.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
+    }
+
+
+*************
+Ejecución del sistema  (Validar usuarios en la bd)
+*************
+
+=======================
+Carrito de Compras
+=======================
+
+===========
+Recorte 011 Item.java en domain
+===========
+package com.tienda_v1.domain;
+
+import lombok.Data;
+
+@Data
+public class Item extends Articulo {
+    private int cantidad; //Almacenar la cantidad de items de un articulo
+
+    public Item() {
+    }
+
+    public Item(Articulo articulo) {
+        super.setIdArticulo(articulo.getIdArticulo());
+        super.setCategoria(articulo.getCategoria());
+        super.setDescripcion(articulo.getDescripcion());
+        super.setDetalle(articulo.getDetalle());
+        super.setPrecio(articulo.getPrecio());
+        super.setExistencias(articulo.getExistencias());
+        super.setActivo(articulo.isActivo());
+        super.setImagen(articulo.getImagen());
+        this.cantidad = 0;
+    }
+}
+
+===========
+Recorte 012 ItemService.java en service
+===========
+package com.tienda_v1.service;
+
+import com.tienda_v1.domain.Item;
+import java.util.ArrayList;
+import java.util.List;
+
+public interface ItemService {     
+    List<Item> listaItems = new ArrayList<>();
+    
+    public List<Item> gets();
+    
+    //Se recupera el registro que tiene el idItem pasado por parámetro
+    //si no existe en la tabla se retorna null
+    public Item get(Item item);
+    
+    //Se elimina el registro que tiene el idItem pasado por parámetro
+    public void delete(Item item);
+    
+    //Si el objeto item tiene un idItem que existe en la tabla item
+    //El registro de actualiza con la nueva información
+    //Si el idItem NO existe en la tabla, se crea el registro con esa información
+    public void save(Item item);
+    
+    public void actualiza(Item item);
+    
+    public void facturar();
+}
+
+
+===========
+Recorte 013 ItemServiceImpl.java en service.impl
+===========
+
+package com.tienda_v1.service.impl;
+
+import com.tienda_v1.domain.Item;
+import com.tienda_v1.service.ItemService;
+import java.util.List;
+import java.util.Objects;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ItemServiceImpl implements ItemService {
+
+    @Override
+    public List<Item> gets() {
+        return listaItems;
+    }
+
+    //Se usa en el addCarrito... agrega un elemento
+    @Override
+    public void save(Item item) {
+        boolean existe = false;
+        for (Item i : listaItems) {
+            //Busca si ya existe el articulo en el carrito
+            if (Objects.equals(i.getIdArticulo(), item.getIdArticulo())) {
+                //Valida si aún puede colocar un item adicional -segun existencias-
+                if (i.getCantidad() < item.getExistencias()) {
+                    //Incrementa en 1 la cantidad de elementos
+                    i.setCantidad(i.getCantidad() + 1);
+                }
+                existe = true;
+                break;
+            }
+        }
+        if (!existe) {//Si no está el articulo en el carrito se agrega cantidad =1.            
+            item.setCantidad(1);
+            listaItems.add(item);
+        }
+    }
+
+    //Se usa para eliminar un articulo del carrito
+    @Override
+    public void delete(Item item) {
+        var posicion = -1;
+        var existe = false;
+        for (Item i : listaItems) {
+            ++posicion;
+            if (Objects.equals(i.getIdArticulo(), item.getIdArticulo())) {
+                existe = true;
+                break;
+            }
+        }
+        if (existe) {
+            listaItems.remove(posicion);
+        }
+    }
+
+    //Se obtiene la información de un articulo del carrito... para modificarlo
+    @Override
+    public Item get(Item item) {
+        for (Item i : listaItems) {
+            if (Objects.equals(i.getIdArticulo(), item.getIdArticulo())) {
+                return i;
+            }
+        }
+        return null;
+    }
+
+    //Se usa en la página para actualizar la cantidad de articulos
+    @Override
+    public void actualiza(Item item) {
+        for (Item i : listaItems) {
+            if (Objects.equals(i.getIdArticulo(), item.getIdArticulo())) {
+                i.setCantidad(item.getCantidad());
+                break;
+            }
+        }
+    }
+
+    /*En un futuro sería el proceso de generar la facturación...
+    por ahora sólo borra los elementos del carrito */
+    @Override
+    public void facturar() {
+        System.out.println("Facturando");
+        for (Item i : listaItems) {
+            System.out.println("Producto: " + i.getDescripcion() + 
+                    " Cantidad: " + i.getCantidad() + 
+                    " Total: " + i.getPrecio() * i.getCantidad());
+
+        }
+        listaItems.clear();
+    }
+}
+
+===========
+Recorte 014 CarritoController.java en controller
+===========
+
+package com.tienda_v1.controller;
+
+import com.tienda_v1.domain.Articulo;
+import com.tienda_v1.domain.Item;
+import com.tienda_v1.service.ArticuloService;
+import com.tienda_v1.service.ItemService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+@Controller
+@Slf4j
+public class CarritoController {
+
+    @Autowired
+    private ItemService itemService;
+    @Autowired
+    private ArticuloService articuloService;
+
+    //Para ver el carrito
+    @GetMapping("/carrito/listado")
+    public String inicio(Model model) {
+        var items = itemService.gets();
+        model.addAttribute("items", items);
+        var carritoTotalVenta = 0;
+        for (Item i : items) {
+            carritoTotalVenta += (i.getCantidad() * i.getPrecio());
+        }
+        model.addAttribute("carritoTotal", carritoTotalVenta);
+        return "/carrito/listado";
+    }
+
+    //Para Agregar un articulo al carrito
+    @GetMapping("/carrito/agregar/{idArticulo}")
+    public ModelAndView agregarItem(Model model, Item item) {
+        Item item2 = itemService.get(item);
+        if (item2 == null) {
+            Articulo articulo = articuloService.getArticulo(item);
+            item2 = new Item(articulo);
+        }
+        itemService.save(item2);
+        var lista = itemService.gets();
+        var totalCarritos = 0;
+        var carritoTotalVenta = 0;
+        for (Item i : lista) {
+            totalCarritos += i.getCantidad();
+            carritoTotalVenta += (i.getCantidad() * i.getPrecio());
+        }
+        model.addAttribute("listaItems", lista);
+        model.addAttribute("listaTotal", totalCarritos);
+        model.addAttribute("carritoTotal", carritoTotalVenta);
+        return new ModelAndView("/carrito/fragmentosCarrito :: verCarrito");
+    }
+
+    //Para mofificar un articulo del carrito
+    @GetMapping("/carrito/modificar/{idArticulo}")
+    public String modificarItem(Item item, Model model) {
+        item = itemService.get(item);
+        model.addAttribute("item", item);
+        return "/carrito/modificar";
+    }
+
+    //Para eliminar un elemento del carrito
+    @GetMapping("/carrito/eliminar/{idArticulo}")
+    public String eliminarItem(Item item) {
+        itemService.delete(item);
+        return "redirect:/carrito/listado";
+    } 
+
+    //Para actualizar un articulo del carrito (cantidad)
+    @PostMapping("/carrito/guardar")
+    public String guardarItem(Item item) {
+        itemService.actualiza(item);
+        return "redirect:/carrito/listado";
+    }
+    
+    //Para facturar los articulos del carrito... no implementado...
+    @GetMapping("/facturar/carrito")
+    public String facturarCarrito() {
+        itemService.facturar();
+        return "redirect:/";
+    }
+}
+
+===========
+Recorte 015 index.html Modificación
+===========
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://thymeleaf.org/extras/spring-security">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>TechShop</title>        
+    </head>
+    <body>
+        <header th:replace="~{layout/plantilla :: header}"/>
+        <section th:replace="~{carrito/fragmentosCarrito :: listadoArticulos}"/>
+        <footer th:replace="~{layout/plantilla :: footer}"/>  
+
+        <script>
+            function addCard(formulario){             
+              var valor=formulario.elements[0].value;                
+              var url = '/carrito/agregar';
+              url = url + '/' +valor;
+              $("#resultsBlock").load(url);         
+            }
+        </script>
+    </body>
+</html>
+
+
+===========
+Recorte 016 fragmentosCarrito.html en el folder carrito en templates
+===========
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://thymeleaf.org/extras/spring-security">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>TechShop</title>
+    </head>
+    <body>
+        <section th:fragment="listadoArticulos" id="articulos">
+            <div class="container">
+                <div class="row row-cols-2" >
+                    <h2 class="inline">[[#{index.nuestrosArticulos}]]</h2>
+                    <div id="resultsBlock">
+                    </div>
+                </div>
+                <div class="row row-cols-3" 
+                     th:if="${articulos != null and !articulos.empty}">
+                    <div class="card" th:each="articulo : ${articulos}">
+                        <div class="card-body">
+                            <h5 class="card-title">[[${articulo.descripcion}]]</h5>
+                            <figure>
+                                <img th:src="@{${articulo.imagen}}" height="200"/>
+                                <figcaption>
+                                    [[${articulo.precio}+' ('+${articulo.existencias}+')']]
+                                </figcaption>
+                            </figure>
+                            <form>
+                                <input type="hidden" name="texto" th:value="${articulo.idArticulo}"/>
+                                <input type="hidden" name="texto" th:value="${articulo.existencias}"/>
+                                <button class="btn btn-ligth" id="addCar" 
+                                        name="addCar" onclick="addCard(this.form)" 
+                                        type="button">
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+                            </form>
+                            <p class="card-text">[[${articulo.detalle}]]</p>                            
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${articulos == null or articulos.empty}">
+                    [[#{carrito.no_mostrar}]]
+                </div>
+            </div>
+        </section>
+
+        <div th:fragment="verCarrito" th:unless="${#lists.isEmpty(listaItems)}">            
+            <form action="/carrito/listado">
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+                    <i class="fas fa-cart-plus"></i>[[#{carrito.verCarrito}]] [[${listaTotal}]]
+                </button>
+            </form>
+        </div>     
+
+        <section th:fragment="listadoCarrito" id="items">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>[[#{carrito.titulo}]]</h4>
+                            </div>
+                            <div th:if="${items != null and !items.empty}">
+                                <table class="table table-stryped">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>[[#{articulo.descripcion}]]</th>
+                                            <th>[[#{articulo.precio}]]</th>
+                                            <th>[[#{carrito.cantidad}]]</th>
+                                            <th>[[#{carrito.total}]]</th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="item, contador : ${items}">
+                                            <td>[[${contador.count}]]</td>
+                                            <td>[[${item.descripcion}]]</td>
+                                            <td class="text-end">[[${item.precio}]]</td>
+                                            <td class="text-center">[[${item.cantidad}]]</td>
+                                            <td class="text-center">[[${item.cantidad*item.precio}]]</td>
+                                            <td>
+                                                <a th:href="@{/carrito/eliminar/}+${item.idArticulo}"
+                                                   class="btn btn-danger">
+                                                    <i class='fas fa-trash'></i> [[#{accion.eliminar}]]
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a th:href="@{/carrito/modificar/}+${item.idArticulo}"
+                                                   class="btn btn-success">
+                                                    <i class='fas fa-pencil'></i> [[#{accion.actualizar}]]
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-center p-2" th:if="${items== null or items.empty}">
+                                [[#{carrito.no_mostrar}]]
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center bg-primary text-white mb-3">
+                            <div class="card-body">
+                                <h3>[[#{carrito.totalCompra}]]</h3>
+                                <h4 class="fs-4">
+                                    [[${carritoTotal}]]
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="card text-center bg-success text-white mb-3">
+                            <div class="card-body">
+                                <a th:href="@{/}"
+                                   class="btn btn-success">
+                                    <i class='fas fa-reply'></i> [[#{carrito.seguirComprando}]]
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card text-center bg-info text-white mb-3">
+                            <div class="card-body">
+                                <a th:href="@{/facturar/carrito}"
+                                   class="btn btn-info">
+                                    <i class='fas fa-fordward'></i> [[#{carrito.facturar}]]
+                                </a>
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>
+
+===========
+Recorte 017 listado.html en el folder carrito en templates
+===========
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://thymeleaf.org/extras/spring-security">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>TechShop</title>
+    </head>
+    <body>
+        <header th:replace="~{layout/plantilla :: header}"/>
+
+        <section th:replace="~{carrito/fragmentosCarrito :: listadoCarrito}"/>
+
+        <footer th:replace="~{layout/plantilla :: footer}"/>
+
+    </body>
+</html>
+
+
+===========
+Recorte 018 modificar.html en el folder carrito en templates
+===========
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://thymeleaf.org/extras/spring-security">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>TechShop</title>
+    </head>
+    <body>
+        <header th:replace="~{layout/plantilla :: header}"/>
+        
+        <div class="container">
+            <div class="row row-cols-6" >
+                <a th:href="@{/carrito/listado}" class="btn btn-primary">
+                    <i class='fas fa-reply'></i> [[#{accion.regresar}]]</a>
+            </div>
+            <div class="row row-cols-2">
+                <div class="card">
+                    <div class="card-header">
+                        [[#{carrito.datos}]]
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">[[${item.descripcion}]]</h5>
+                        <h6 class="card-subtitle mb-2 text-muted text-end">
+                            [[${item.precio}+' ('+${item.existencias}+')']]</h6>
+                        <p class="card-text">[[${item.detalle}]]</p>
+                    </div>
+                </div>
+                <div class="card">                    
+                    <div class="card-body">
+                        <figure>
+                            <img th:src="@{${item.imagen}}" width="120"/>                            
+                        </figure>
+                        <form th:action="@{/carrito/guardar}"
+                              method="post"
+                              th:object="${item}">
+                            <input type="hidden" name="idArticulo" th:field="*{idArticulo}"/>
+                            <div class="form-group">
+                                <label for="cantidad">[[#{carrito.cantidad}]]:</label>
+                                <input type="number" name="cantidad" th:field="*{cantidad}" 
+                                       min='1' th:max="${item.existencias}"/>
+                            </div>                
+                            <div class="form-group">                    
+                                <button class="btn btn-success" type="submit" name="guardar">
+                                   <i class='fas fa-save'></i> [[#{accion.guardar}]]
+                                </button>
+                            </div>
+                        </form>
+                        <a th:href="@{/carrito/eliminar/}+${item.idArticulo}"
+                           class="btn btn-danger">
+                            <i class='fas fa-trash'></i> [[#{accion.eliminar}]]
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer th:replace="~{layout/plantilla :: footer}"/>
+
+    </body>
+</html>
+
+
+*******************
+Ejecución del sistema para carrito
+*******************
+
+===================
+Reportes
+===================
+
+****************
+Recorte 019: Dependencias
+****************
+
+ <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports</artifactId>
+            <version>6.20.1</version>
+        </dependency>
+
+
+
+****************
+Recorte 020: principal.html (en un nuevo folder templates.reportes)
+****************
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://thymeleaf.org/extras/spring-security">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>TechShop</title>        
+    </head>
+    <body>
+        <header th:replace="~{layout/plantilla :: header}"/>
+        <div class="container">
+            <div class="row"></div>
+            <div class="row row-cols-6" >
+                <a th:href="@{/}" class="btn btn-primary">
+                    <i class='fas fa-reply'></i> [[#{accion.regresar}]]</a>
+            </div>
+            <div class="row"></div>
+            <div class="row row-cols-3">
+                <div class="card">
+                    <div class="card-header text-center">
+                        Reporte Cientes
+                    </div>
+                    <div class="card-body">
+                        <a th:href="@{/reportes/clientes?tipo=vPdf}" class="btn btn-primary">
+                            <i class='fas fa-eye'></i><i class='fas fa-file-pdf'></i>
+                        </a>
+                        <a th:href="@{/reportes/clientes?tipo=Pdf}" class="btn btn-success">
+                            <i class='fas fa-download'></i><i class='fas fa-file-pdf'></i>
+                        </a>
+                        <a th:href="@{/reportes/clientes?tipo=Xls}" class="btn btn-warning">
+                            <i class='fas fa-download'></i><i class='fas fa-file-excel'></i>
+                        </a>
+                        <a th:href="@{/reportes/clientes?tipo=Csv}" class="btn btn-danger">
+                            <i class='fas fa-download'></i><i class='fas fa-file-csv'></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header text-center">
+                        Reporte ventas
+                    </div>
+                    <div class="card-body">
+                        <a th:href="@{/reportes/ventas?tipo=vPdf}" class="btn btn-primary">
+                            <i class='fas fa-eye'></i><i class='fas fa-file-pdf'></i>
+                        </a>
+                        <a th:href="@{/reportes/ventas?tipo=Pdf}" class="btn btn-success">
+                            <i class='fas fa-download'></i><i class='fas fa-file-pdf'></i>
+                        </a>
+                        <a th:href="@{/reportes/ventas?tipo=Xls}" class="btn btn-warning">
+                            <i class='fas fa-download'></i><i class='fas fa-file-excel'></i>
+                        </a>
+                        <a th:href="@{/reportes/ventas?tipo=Csv}" class="btn btn-danger">
+                            <i class='fas fa-download'></i><i class='fas fa-file-csv'></i>
+                        </a>
+                    </div>
+                </div>                
+            </div>
+        </div>
+
+        <footer th:replace="~{layout/plantilla :: footer}"/>         
+    </body>
+</html>
+
+
+****************
+Recorte 021: proceso
+****************
+
+1. Crear folder "reportes" en default package
+2. Copiar los archivos .jasper
+
+
+****************
+Recorte 022: reporteController.java
+****************
+
+
+package com.tienda_v1.controller;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.util.HashMap;
+
+import java.util.Map;
+import javax.sql.DataSource;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.export.JRCsvExporter;
+import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimpleWriterExporterOutput;
+import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@Controller
+@RequestMapping("/reportes")
+public class ReporteController {
+
+    //Para tener acceso a la conexiòn con la base de datos...
+    @Autowired
+    DataSource datasource;
+
+    @GetMapping("/principal")
+    public String principal() {
+        return "/reportes/principal";
+    }
+
+    @GetMapping("/clientes")
+    public ResponseEntity<Resource> reporteClientes(@RequestParam String tipo) throws IOException {
+        //Por desarrollar
+
+        //Esto espara definir los paràmetros que se pasan al reporte cliente
+        Map<String, Object> parametros = new HashMap();
+        parametros.put("titulo", "Wilberth");
+        var reporte = "clientes";
+        return reportePrivado(reporte, parametros, tipo);
+    }
+
+    
+    @GetMapping("/ventas")
+    public ResponseEntity<Resource> reporteVentas(@RequestParam String tipo) throws IOException {
+        //Por desarrollar
+        var reporte="ventas";
+        return reportePrivado(reporte, null, tipo);
+    }
+
+    private ResponseEntity<Resource> reportePrivado(
+            String reporte,
+            Map<String, Object> parametros,
+            String tipo) throws IOException {
+        try {
+
+            String estilo = "";
+            if ("vPdf".equals(tipo)) {
+                estilo = "inline; ";
+            } else {
+                estilo = "attachment; ";
+            }
+
+            //La ruta dentro de "default package"
+            String reportePath = "reportes";
+            //En salida quedarà el reporte ya generado...
+            ByteArrayOutputStream salida = new ByteArrayOutputStream();
+
+            //Se define el lugar y acceso al archivo .jasper
+            ClassPathResource fuente
+                    = new ClassPathResource(
+                            reportePath
+                            + File.separator
+                            + reporte
+                            + ".jasper");
+
+            //Un objeto para leer efectivamente el reporte
+            InputStream elReporte = fuente.getInputStream();
+
+            //Se crea el reporte como tal
+            var reporteJasper
+                    = JasperFillManager
+                            .fillReport(
+                                    elReporte,
+                                    parametros,
+                                    datasource.getConnection());
+            MediaType mediaType = null;
+            String archivoSalida = "";
+            byte[] data;
+            if ("Pdf".equals(tipo) || "vPdf".equals(tipo)) {
+                JasperExportManager.exportReportToPdfStream(reporteJasper, salida);
+                mediaType = MediaType.APPLICATION_PDF;
+                archivoSalida = reporte + ".pdf";
+            } else if ("Xls".equals(tipo)) {
+                JRXlsxExporter exportador = new JRXlsxExporter();
+                exportador.setExporterInput(
+                        new SimpleExporterInput(
+                                reporteJasper));
+                exportador.setExporterOutput(
+                        new SimpleOutputStreamExporterOutput(
+                                salida));
+                SimpleXlsxReportConfiguration configuracion=
+                        new SimpleXlsxReportConfiguration();
+                configuracion.setDetectCellType(true);
+                configuracion.setCollapseRowSpan(true);
+                exportador.setConfiguration(configuracion);
+                exportador.exportReport();
+                mediaType = MediaType.APPLICATION_OCTET_STREAM;
+                archivoSalida = reporte + ".xlsx";
+            } else if ("Csv".equals(tipo)) {
+                JRCsvExporter exportador = new JRCsvExporter();
+                exportador.setExporterInput(
+                        new SimpleExporterInput(
+                                reporteJasper));
+                exportador.setExporterOutput(
+                        new SimpleWriterExporterOutput(
+                                salida));
+                
+                exportador.exportReport();
+                mediaType = MediaType.TEXT_PLAIN;
+                archivoSalida = reporte + ".csv";
+            }
+
+            data = salida.toByteArray();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Disposition",
+                    estilo + "filename=\"" + archivoSalida + "\"");
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .contentLength(data.length)
+                    .contentType(mediaType)
+                    .body(
+                            new InputStreamResource(
+                                    new ByteArrayInputStream(data)));
+
+        } catch (SQLException | JRException e) {
+            return null;
+        }
+
+    }
+}
+
+***************
+EJECUCION FINAL
+***************

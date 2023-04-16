@@ -21,7 +21,7 @@ public class Articulo implements Serializable {
     private String detalle;
     private double precio;
     private String imagen;
-
+   private int existencias;
     private boolean activo;
 
     @JoinColumn(name = "id_categoria", referencedColumnName = "id_categoria")
@@ -31,13 +31,15 @@ public class Articulo implements Serializable {
     public Articulo() {
     }
 
-    public Articulo(String descripcion, String detalle, double precio, String imagen, boolean activo, Categoria categoria) {
+    public Articulo(String descripcion, String detalle, double precio, String imagen, boolean activo, Categoria categoria, int existencias) {
         this.descripcion = descripcion;
         this.detalle = detalle;
         this.precio = precio;
         this.imagen = imagen;
         this.activo = activo;
+        this.existencias =existencias;
         this.categoria = categoria;
+        
     }
 
     
